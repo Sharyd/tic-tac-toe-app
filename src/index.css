@@ -1,0 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Kumbh+Sans:wght@400;700&family=Outfit:wght@500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    html {
+        font-family: 'Outfit', sans-serif;
+    }
+}
+
+@layer components {
+    .h2 {
+        @apply text-small text-tertiary font-bold tracking-widest uppercase;
+    }
+    .paragraph {
+        @apply text-tertiary text-xsmall opacity-50 tracking-widest uppercase;
+    }
+}
