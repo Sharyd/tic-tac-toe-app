@@ -3,16 +3,26 @@ import './App.css'
 import NewGameMenu from './screens/NewGameMenu'
 import GameStart from './screens/GameStart'
 import useLocalStorage from './hooks/useLocalStorage'
+import useIsMobile from './hooks/useIsMobile'
 
 const generateBoard = (generateNumber: number) =>
     Array(generateNumber).fill(null)
 
-const getRandomNumberOfBoard = () => {
-    const arrayOfBoard = [9, 16, 25, 36, 49, 64, 81, 100]
-    return arrayOfBoard[Math.floor(Math.random() * arrayOfBoard.length)]
-}
-
 function App() {
+    const isMobile = useIsMobile()
+
+    const getRandomNumberOfBoard = () => {
+        const arrayOfBoard = [9, 16, 25, 36, 49, 64, 81, 100]
+        const arrayOfBoardForMobile = [9, 16, 25, 36, 49, 64]
+
+        if (isMobile) {
+            return arrayOfBoardForMobile[
+                Math.floor(Math.random() * arrayOfBoardForMobile.length)
+            ]
+        }
+
+        return arrayOfBoard[Math.floor(Math.random() * arrayOfBoard.length)]
+    }
     const [board, setBoard] = useLocalStorage(
         'board',
         generateBoard(getRandomNumberOfBoard())
@@ -98,6 +108,11 @@ function App() {
             numberOfWins: 0,
             XO: '',
         }))
+        setTie((prevState) => ({
+            ...prevState,
+            isTie: false,
+            numberOfTies: 0,
+        }))
         setBoard(generateBoard(getRandomNumberOfBoard()))
     }
 
@@ -151,10 +166,14 @@ function App() {
             ...prevState,
             isWinner: false,
         }))
+        setTie((prevState) => ({
+            ...prevState,
+            isTie: false,
+        }))
     }
 
     return (
-        <main className="min-h-screen py-8 w-full flex items-center justify-center bg-backgroundPrimary">
+        <main className="min-h-screen px-3 md:px-0 py-8 w-full flex items-center justify-center bg-backgroundPrimary">
             {!CPU.isPicked && !player.isPicked ? (
                 <NewGameMenu
                     onPickXO={handlePickXO}
@@ -172,7 +191,7 @@ function App() {
                     onReset={handleResetGame}
                     player={player}
                     secondPlayer={secondPlayer}
-                    ties={tie.numberOfTies}
+                    ties={tie}
                     cpu={CPU}
                 />
             )}

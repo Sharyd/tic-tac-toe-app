@@ -6,8 +6,8 @@ const cardVariants = cva('bg-backgroundSecondary rounded-xl', {
     variants: {
         variant: {
             default: 'w-full shadow-customInnerBottomDark',
-            secondary: 'w-max px-7 py-3 shadow-customInnerBottomDarkSmall',
-            tertiary: 'w-full px-7 py-3',
+            secondary: 'w-max  px-7 py-3 shadow-customInnerBottomDarkSmall',
+            tertiary: 'w-full py-2 md:px-7 md:py-3',
         },
         colors: {
             default: 'bg-backgroundSecondary',

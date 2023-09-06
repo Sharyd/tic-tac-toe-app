@@ -1,5 +1,3 @@
-import React from 'react'
-import Card from '../components/ui/Card'
 import XO from '../components/ui/XO'
 import { Button } from '../components/ui/Button'
 import PickPlayer from '../components/NewGameMessage/PickPlayer'

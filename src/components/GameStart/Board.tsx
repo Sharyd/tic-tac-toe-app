@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { cn } from '../../utils/cn'
 import { motion } from 'framer-motion'
 import IconXO from '../ui/IconXO'
@@ -7,14 +7,29 @@ import {
     calculatePadding,
     calculateWidthAndHeight,
 } from '../../utils/calculate'
+import IconXOOutline from '../ui/IconXOoutline'
 
 interface Props {
     sqrtOfBoard: number
     onClickSquare: (index: number) => void
     board: string[]
+    isTurnCPU: boolean
+    turn: 'x' | 'o' | undefined
 }
 
-const Board = ({ sqrtOfBoard, onClickSquare, board }: Props) => {
+const Board = ({
+    sqrtOfBoard,
+    onClickSquare,
+    board,
+    turn,
+    isTurnCPU,
+}: Props) => {
+    const [isHover, setIsHover] = useState<null | number>(null)
+
+    const isFreeBox = (index: number) => {
+        return board[index] === null
+    }
+
     return (
         <motion.div
             className={cn('grid gap-4', {
@@ -28,7 +43,13 @@ const Board = ({ sqrtOfBoard, onClickSquare, board }: Props) => {
             {board.map((square, index) => {
                 return (
                     <div
-                        onClick={() => onClickSquare(index)}
+                        onClick={() => !isTurnCPU && onClickSquare(index)}
+                        onMouseEnter={() => {
+                            setIsHover(index)
+                        }}
+                        onMouseLeave={() => {
+                            setIsHover(null)
+                        }}
                         key={index}
                         className={cn(
                             'bg-backgroundSecondary cursor-pointer rounded-xl relative shadow-customInnerBottomDarkSmall',
@@ -39,6 +60,7 @@ const Board = ({ sqrtOfBoard, onClickSquare, board }: Props) => {
                     >
                         <span className="absolute text-4xl -translate-x-1/2 -translate-y-1/2">
                             <IconXO
+                                outline={false}
                                 type={
                                     square === 'x'
                                         ? 'x'
@@ -53,6 +75,16 @@ const Board = ({ sqrtOfBoard, onClickSquare, board }: Props) => {
                                     'fill-secondary': square === 'o',
                                 })}
                             />
+                            {isHover === index && isFreeBox(index) && (
+                                <IconXOOutline
+                                    outline
+                                    type={!isTurnCPU ? turn : undefined}
+                                    width={calculateWidthAndHeight(sqrtOfBoard)}
+                                    height={calculateWidthAndHeight(
+                                        sqrtOfBoard
+                                    )}
+                                />
+                            )}
                         </span>
                     </div>
                 )

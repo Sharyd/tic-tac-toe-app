@@ -5,6 +5,7 @@ interface Props {
     className?: string
     width?: string
     height?: string
+    outline?: boolean
 }
 
 const IconXO = ({ type, className, width, height }: Props) => {

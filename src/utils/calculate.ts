@@ -14,14 +14,14 @@ export const calculateGridCols = (sqrtBoard: number): string => {
 
 export const calculatePadding = (sqrtBoard: number): string => {
     const paddingMap: Record<number, string> = {
-        7: 'p-8',
-        6: 'p-10',
-        5: 'p-10',
-        4: 'p-12',
-        3: 'p-20',
+        7: 'p-5 md:p-8',
+        6: 'p-5 md:p-10',
+        5: 'p-5 md:p-10',
+        4: 'p-9 md:p-12',
+        3: 'p-11 md:p-20',
     }
 
-    return paddingMap[sqrtBoard] || 'p-8'
+    return paddingMap[sqrtBoard] || 'p-5 md:p-8'
 }
 
 export const calculateWidthAndHeight = (sqrtBoard: number): string => {
