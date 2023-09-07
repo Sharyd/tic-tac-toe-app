@@ -13,7 +13,7 @@ function App() {
 
     const getRandomNumberOfBoard = () => {
         const arrayOfBoard = [9, 16, 25, 36, 49, 64, 81, 100]
-        const arrayOfBoardForMobile = [9, 16, 25, 36, 49, 64]
+        const arrayOfBoardForMobile = [9, 16, 25, 36, 49]
 
         if (isMobile) {
             return arrayOfBoardForMobile[
