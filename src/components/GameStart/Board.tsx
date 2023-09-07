@@ -8,6 +8,7 @@ import {
     calculateWidthAndHeight,
 } from '../../utils/calculate'
 import IconXOOutline from '../ui/IconXOoutline'
+import useIsMobile from '../../hooks/useIsMobile'
 
 interface Props {
     sqrtOfBoard: number
@@ -25,6 +26,7 @@ const Board = ({
     isTurnCPU,
 }: Props) => {
     const [isHover, setIsHover] = useState<null | number>(null)
+    const isMobile = useIsMobile()
 
     const isFreeBox = (index: number) => {
         return board[index] === null
@@ -75,16 +77,20 @@ const Board = ({
                                     'fill-secondary': square === 'o',
                                 })}
                             />
-                            {isHover === index && isFreeBox(index) && (
-                                <IconXOOutline
-                                    outline
-                                    type={!isTurnCPU ? turn : undefined}
-                                    width={calculateWidthAndHeight(sqrtOfBoard)}
-                                    height={calculateWidthAndHeight(
-                                        sqrtOfBoard
-                                    )}
-                                />
-                            )}
+                            {!isMobile &&
+                                isHover === index &&
+                                isFreeBox(index) && (
+                                    <IconXOOutline
+                                        outline
+                                        type={!isTurnCPU ? turn : undefined}
+                                        width={calculateWidthAndHeight(
+                                            sqrtOfBoard
+                                        )}
+                                        height={calculateWidthAndHeight(
+                                            sqrtOfBoard
+                                        )}
+                                    />
+                                )}
                         </span>
                     </div>
                 )

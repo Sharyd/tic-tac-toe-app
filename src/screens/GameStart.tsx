@@ -11,6 +11,7 @@ import Restart from '../components/GameStart/Restart'
 import useWinningConditions from '../hooks/useWinningConditions'
 import Spinner from '../components/ui/Spinner'
 import RestartIcon from '../components/ui/RestartIcon'
+import { findWinningMoveForCPU } from '../utils/CPUMoves'
 
 interface Props {
     setBoard: React.Dispatch<React.SetStateAction<string[]>>
@@ -51,12 +52,8 @@ const GameStart = ({
 
     const sqrtOfBoard = Math.sqrt(board.length)
     const isWinner = player.isWinner || secondPlayer.isWinner || cpu.isWinner
-    const {
-        checkDiagonalWinner,
-        checkHorizontalWinner,
-        checkVerticalWinner,
-        findWinningMoveForCPU,
-    } = useWinningConditions(board, sqrtOfBoard, onWinner)
+    const { checkDiagonalWinner, checkHorizontalWinner, checkVerticalWinner } =
+        useWinningConditions(board, sqrtOfBoard, onWinner)
 
     const handleGameWithPlayer = (index: number) => {
         if (!player.isPicked) return
@@ -114,15 +111,26 @@ const GameStart = ({
                 setTurn(player.XO)
             }
         } else {
-            const winningMove = findWinningMoveForCPU(cpu)
-            if (winningMove !== null) {
-                handleGameTurn(winningMove)
+            const blockingMove = findWinningMoveForCPU(
+                cpu,
+                player.XO,
+                board,
+                sqrtOfBoard,
+                2
+            )
+            if (blockingMove !== null) {
+                handleGameTurn(blockingMove)
                 return
             }
 
-            const blockingMove = findWinningMoveForCPU(player)
-            if (blockingMove !== null) {
-                handleGameTurn(blockingMove)
+            const winningMove = findWinningMoveForCPU(
+                cpu,
+                player.XO,
+                board,
+                sqrtOfBoard
+            )
+            if (winningMove !== null) {
+                handleGameTurn(winningMove)
                 return
             }
 
