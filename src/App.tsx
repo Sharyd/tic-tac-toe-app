@@ -1,15 +1,37 @@
-import { useState } from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import './App.css'
 import NewGameMenu from './screens/NewGameMenu'
 import GameStart from './screens/GameStart'
 import useLocalStorage from './hooks/useLocalStorage'
 import useIsMobile from './hooks/useIsMobile'
+import { playerCPUType } from './types'
 
 const generateBoard = (generateNumber: number) =>
     Array(generateNumber).fill(null)
 
 function App() {
     const isMobile = useIsMobile()
+    const [pickedXO, setPickedXO] = useState('x')
+
+    const [CPU, setCPU] = useLocalStorage('CPU', {
+        isPicked: false,
+        isWinner: false,
+        numberOfWins: 0,
+        XO: '',
+    })
+    const [player, setPlayer] = useLocalStorage('Player', {
+        isPicked: false,
+        isWinner: false,
+        numberOfWins: 0,
+        XO: '',
+    })
+    const [secondPlayer, setSecondPlayer] = useLocalStorage('SecondPlayer', {
+        isPicked: false,
+        isWinner: false,
+        numberOfWins: 0,
+        XO: '',
+    })
+    const [tie, setTie] = useState({ isTie: false, numberOfTies: 0 })
 
     const getRandomNumberOfBoard = () => {
         const arrayOfBoard = [9, 16, 25, 36, 49, 64, 81, 100]
@@ -26,38 +48,13 @@ function App() {
     const [board, setBoard] = useLocalStorage(
         'board',
         generateBoard(getRandomNumberOfBoard())
-    ) // set square root of board(9, 16, 25, 36, 49, 64, 81, 100)
-    const [pickedXO, setPickedXO] = useState('x')
-    const [CPU, setCPU] = useLocalStorage('CPU', {
-        isPicked: false,
-        isWinner: false,
-        numberOfWins: 0,
-        XO: '',
-    })
-    const [player, setPlayer] = useLocalStorage('Player', {
-        isPicked: false,
-        isWinner: false,
-        numberOfWins: 0,
-        XO: '',
-    })
-
-    const [secondPlayer, setSecondPlayer] = useLocalStorage('SecondPlayer', {
-        isPicked: false,
-        isWinner: false,
-        numberOfWins: 0,
-        XO: '',
-    })
-
-    const [tie, setTie] = useState({
-        isTie: false,
-        numberOfTies: 0,
-    })
+    )
 
     const handlePickXO = (xorO: string) => {
         setPickedXO(xorO)
     }
 
-    const handlePickCPU = () => {
+    const handlePickCPU = useCallback(() => {
         setCPU((prevState) => ({
             ...prevState,
             isPicked: true,
@@ -69,9 +66,9 @@ function App() {
             isPicked: true,
             XO: pickedXO === 'x' ? 'x' : 'o',
         }))
-    }
+    }, [pickedXO])
 
-    const handlePickPlayer = () => {
+    const handlePickPlayer = useCallback(() => {
         setPlayer((prevState) => ({
             ...prevState,
             isPicked: true,
@@ -83,9 +80,9 @@ function App() {
             isPicked: true,
             XO: pickedXO === 'x' ? 'o' : 'x',
         }))
-    }
+    }, [pickedXO])
 
-    const handleResetGame = () => {
+    const handleResetGame = useCallback(() => {
         setCPU((prevState) => ({
             ...prevState,
             isPicked: false,
@@ -100,7 +97,6 @@ function App() {
             numberOfWins: 0,
             XO: '',
         }))
-
         setSecondPlayer((prevState) => ({
             ...prevState,
             isPicked: false,
@@ -108,68 +104,51 @@ function App() {
             numberOfWins: 0,
             XO: '',
         }))
-        setTie((prevState) => ({
-            ...prevState,
-            isTie: false,
-            numberOfTies: 0,
-        }))
+        setTie({ isTie: false, numberOfTies: 0 })
         setBoard(generateBoard(getRandomNumberOfBoard()))
-    }
+    }, [setBoard, getRandomNumberOfBoard])
 
-    const handleWinner = (winner: string) => {
-        if (
-            (winner === 'x' && player.XO === 'x') ||
-            (winner === 'o' && player.XO === 'o')
-        ) {
-            setPlayer((prevState) => ({
-                ...prevState,
-                isWinner: true,
-                numberOfWins: prevState.numberOfWins + 1,
-            }))
-        }
+    const handleWinner = useCallback(
+        (winner: string) => {
+            const handleCondition = (player: playerCPUType) => {
+                return (
+                    (winner === 'x' && player.XO === 'x' && !player.isWinner) ||
+                    (winner === 'o' && player.XO === 'o' && !player.isWinner)
+                )
+            }
 
-        if (
-            (winner === 'x' && secondPlayer.XO === 'x') ||
-            (winner === 'o' && secondPlayer.XO === 'o')
-        ) {
-            setSecondPlayer((prevState) => ({
-                ...prevState,
-                isWinner: true,
-                numberOfWins: prevState.numberOfWins + 1,
-            }))
-        }
-
-        if (
-            (winner === 'x' && CPU.XO === 'x') ||
-            (winner === 'o' && CPU.XO === 'o')
-        ) {
-            setCPU((prevState) => ({
-                ...prevState,
-                isWinner: true,
-                numberOfWins: prevState.numberOfWins + 1,
-            }))
-        }
-    }
+            if (handleCondition(player)) {
+                setPlayer((prevState) => ({
+                    ...prevState,
+                    isWinner: true,
+                    numberOfWins: prevState.numberOfWins + 1,
+                }))
+            }
+            if (handleCondition(secondPlayer)) {
+                setSecondPlayer((prevState) => ({
+                    ...prevState,
+                    isWinner: true,
+                    numberOfWins: prevState.numberOfWins + 1,
+                }))
+            }
+            if (handleCondition(CPU)) {
+                setCPU((prevState) => ({
+                    ...prevState,
+                    isWinner: true,
+                    numberOfWins: prevState.numberOfWins + 1,
+                }))
+            }
+        },
+        [player, secondPlayer, CPU]
+    )
 
     const handleNextRound = () => {
         setBoard(generateBoard(getRandomNumberOfBoard()))
 
-        setPlayer((prevState) => ({
-            ...prevState,
-            isWinner: false,
-        }))
-        setSecondPlayer((prevState) => ({
-            ...prevState,
-            isWinner: false,
-        }))
-        setCPU((prevState) => ({
-            ...prevState,
-            isWinner: false,
-        }))
-        setTie((prevState) => ({
-            ...prevState,
-            isTie: false,
-        }))
+        setPlayer((prevState) => ({ ...prevState, isWinner: false }))
+        setSecondPlayer((prevState) => ({ ...prevState, isWinner: false }))
+        setCPU((prevState) => ({ ...prevState, isWinner: false }))
+        setTie((prevState) => ({ ...prevState, isTie: false }))
     }
 
     return (

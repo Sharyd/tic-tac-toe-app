@@ -176,14 +176,14 @@ const GameStart = ({
         if (turn === cpu.XO) {
             const randomTimer = Math.floor(Math.random() * 1000) + 1000
             const timer = setTimeout(() => {
-                handleGameWithCPU()
+                !isWinner && handleGameWithCPU()
             }, randomTimer)
 
             return () => {
                 clearTimeout(timer)
             }
         }
-    }, [board, turn, cpu.XO])
+    }, [board, turn, cpu.XO, isWinner, onWinner])
 
     return (
         <Container>
