@@ -10,6 +10,7 @@ import { playerCPUType } from '../types'
 import Restart from '../components/GameStart/Restart'
 import useWinningConditions from '../hooks/useWinningConditions'
 import Spinner from '../components/ui/Spinner'
+import RestartIcon from '../components/ui/RestartIcon'
 
 interface Props {
     setBoard: React.Dispatch<React.SetStateAction<string[]>>
@@ -194,7 +195,7 @@ const GameStart = ({
                     variant={'tertiary'}
                     size={'sm'}
                 >
-                    <img src="/src/assets/icon-restart.svg" alt="" />
+                    <RestartIcon />
                 </Button>
             </div>
             <Board
