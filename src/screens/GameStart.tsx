@@ -11,7 +11,7 @@ import Restart from '../components/GameStart/Restart'
 import useWinningConditions from '../hooks/useWinningConditions'
 import Spinner from '../components/ui/Spinner'
 import RestartIcon from '../components/ui/RestartIcon'
-import { findWinningMoveForCPU } from '../utils/CPUMoves'
+import { isWinningMoveCPU } from '../utils/CPUMoves'
 
 interface Props {
     setBoard: React.Dispatch<React.SetStateAction<string[]>>
@@ -92,83 +92,50 @@ const GameStart = ({
     const handleGameWithCPU = () => {
         if (!cpu.isPicked || isWinner) return
 
-        if (player.isPicked && player.XO === 'o' && turn === 'x') {
-            const availableMoves = []
+        const potentialMoves = []
 
-            for (let i = 0; i < board.length; i++) {
-                if (board[i] === null) {
-                    availableMoves.push(i)
-                }
-            }
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === null) {
+                const testBoard = [...board]
+                testBoard[i] = cpu.XO
 
-            const randomMove =
-                availableMoves[
-                    Math.floor(Math.random() * availableMoves.length)
-                ]
-
-            if (turn === cpu.XO) {
-                handleGameTurn(randomMove)
-                setTurn(player.XO)
-            }
-        } else {
-            const blockingMove = findWinningMoveForCPU(
-                cpu,
-                player.XO,
-                board,
-                sqrtOfBoard,
-                2
-            )
-            if (blockingMove !== null) {
-                handleGameTurn(blockingMove)
-                return
-            }
-
-            const winningMove = findWinningMoveForCPU(
-                cpu,
-                player.XO,
-                board,
-                sqrtOfBoard
-            )
-            if (winningMove !== null) {
-                handleGameTurn(winningMove)
-                return
-            }
-
-            const center = Math.floor(sqrtOfBoard / 2)
-            if (board[center] === null) {
-                handleGameTurn(center)
-                return
-            }
-
-            const corners = [
-                0,
-                sqrtOfBoard - 1,
-                sqrtOfBoard * (sqrtOfBoard - 1),
-                sqrtOfBoard * sqrtOfBoard - 1,
-            ]
-            for (const corner of corners) {
-                if (board[corner] === null) {
-                    handleGameTurn(corner)
+                if (isWinningMoveCPU(testBoard, i, cpu.XO)) {
+                    handleGameTurn(i)
+                    setTurn(player.XO as 'x' | 'o')
                     return
                 }
             }
+        }
 
-            const edges = [1, 3, 5, 7]
-            for (const edge of edges) {
-                if (board[edge] === null) {
-                    handleGameTurn(edge)
-                    return
-                }
-            }
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === null) {
+                const testBoard = [...board]
+                testBoard[i] = player.XO
 
-            for (let i = 0; i < board.length; i++) {
-                if (board[i] === null) {
+                if (isWinningMoveCPU(testBoard, i, player.XO)) {
                     handleGameTurn(i)
                     return
                 }
             }
         }
+
+        for (let i = 0; i < board.length; i++) {
+            if (board[i] === null) {
+                potentialMoves.push(i)
+            }
+        }
+
+        if (potentialMoves.length > 0) {
+            const randomMove =
+                potentialMoves[
+                    Math.floor(Math.random() * potentialMoves.length)
+                ]
+
+            handleGameTurn(randomMove)
+            setTurn(player.XO as 'x' | 'o')
+        }
     }
+
     const handleBotThinkingSpinner = () => {
         if (turn === cpu.XO) {
             return <Spinner color={cpu.XO === 'x' ? '#31C3BD' : '#F2B137'} />
