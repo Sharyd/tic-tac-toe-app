@@ -48,7 +48,26 @@ const useWinningConditions = (
             return false
         })
 
-        return horizontalWinner || verticalWinner
+        const diagonalWinner = ['x', 'o'].find((checkSymbol) => {
+            let consecutiveCount = 0
+            for (let i = 0; i < sqrtOfBoard; i++) {
+                const index = i * sqrtOfBoard + i
+                if (board[index] === checkSymbol) {
+                    consecutiveCount++
+                    if (
+                        (consecutiveCount >= 5 && sqrtOfBoard >= 5) ||
+                        consecutiveCount === sqrtOfBoard
+                    ) {
+                        return true
+                    }
+                } else {
+                    consecutiveCount = 0
+                }
+            }
+            return false
+        })
+
+        return horizontalWinner || verticalWinner || diagonalWinner
     }
 
     const checkVerticalWinner = () => {
@@ -92,45 +111,84 @@ const useWinningConditions = (
     }
 
     const checkDiagonalWinner = () => {
-        for (const symbol of ['x', 'o']) {
-            for (let i = 0; i <= sqrtOfBoard - 5; i++) {
-                let consecutiveCount = 0
-                for (let j = i; j < board.length; j += sqrtOfBoard + 1) {
-                    if (board[j] === symbol) {
-                        consecutiveCount++
-                        if (
-                            (consecutiveCount >= 5 && sqrtOfBoard >= 5) ||
-                            consecutiveCount === sqrtOfBoard
-                        ) {
-                            onWinner(symbol)
-                            return
-                        }
-                    } else {
-                        consecutiveCount = 0
-                    }
+        const diagonals = []
+
+        const diagonal1 = []
+        for (let i = 0; i < board.length; i += sqrtOfBoard + 1) {
+            diagonal1.push(board[i])
+        }
+
+        const diagonal2 = []
+        for (
+            let i = sqrtOfBoard - 1;
+            i < board.length - 1;
+            i += sqrtOfBoard - 1
+        ) {
+            diagonal2.push(board[i])
+        }
+
+        diagonals.push(diagonal1, diagonal2)
+
+        const checkDiagonal = (diagonal: string[]) => {
+            let consecutive
+            for (const symbol of ['x', 'o']) {
+                if (sqrtOfBoard >= 5) {
+                    consecutive = diagonal.join('').includes(symbol.repeat(5))
+                } else {
+                    consecutive = diagonal.every((item) => item === symbol)
+                }
+                if (consecutive) {
+                    onWinner(symbol)
+                    return
                 }
             }
+        }
 
-            for (
-                let i = sqrtOfBoard - 1;
-                i <= board.length - sqrtOfBoard;
-                i += sqrtOfBoard - 1
-            ) {
-                let consecutiveCount = 0
-                for (let j = i; j < board.length; j += sqrtOfBoard - 1) {
-                    if (board[j] === symbol) {
-                        consecutiveCount++
-                        if (
-                            (consecutiveCount >= 5 && sqrtOfBoard >= 5) ||
-                            consecutiveCount === sqrtOfBoard
-                        ) {
-                            onWinner(symbol)
-                            return
-                        }
-                    } else {
-                        consecutiveCount = 0
-                    }
+        checkDiagonal(diagonal1)
+        checkDiagonal(diagonal2)
+
+        if (sqrtOfBoard >= 6) {
+            for (let offset = 1; offset <= sqrtOfBoard - 5; offset++) {
+                const additionalDiagonal1 = []
+                const additionalDiagonal2 = []
+                for (
+                    let i = offset;
+                    i < board.length - sqrtOfBoard * (5 - offset) + offset;
+                    i += sqrtOfBoard + 1
+                ) {
+                    additionalDiagonal1.push(board[i])
                 }
+                for (
+                    let i = sqrtOfBoard - offset - 1;
+                    i < board.length - sqrtOfBoard - 1;
+                    i += sqrtOfBoard - 1
+                ) {
+                    additionalDiagonal2.push(board[i])
+                }
+
+                checkDiagonal(additionalDiagonal1)
+                checkDiagonal(additionalDiagonal2)
+            }
+
+            for (let offset = 1; offset <= sqrtOfBoard + 5; offset++) {
+                const additionalDiagonal1 = []
+                const additionalDiagonal2 = []
+                for (
+                    let i = offset;
+                    i < board.length - sqrtOfBoard * (5 + offset) + offset;
+                    i += sqrtOfBoard + 1
+                ) {
+                    additionalDiagonal1.push(board[i])
+                }
+                for (
+                    let i = sqrtOfBoard - offset + 1;
+                    i < board.length + sqrtOfBoard + 1;
+                    i += sqrtOfBoard - 1
+                ) {
+                    additionalDiagonal2.push(board[i])
+                }
+                checkDiagonal(additionalDiagonal1)
+                checkDiagonal(additionalDiagonal2)
             }
         }
     }
