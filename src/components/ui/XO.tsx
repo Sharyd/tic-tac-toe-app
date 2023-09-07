@@ -1,4 +1,3 @@
-import React from 'react'
 import IconXO from './IconXO'
 
 const XO = () => {
